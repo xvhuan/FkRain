@@ -10,8 +10,8 @@
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 ```
 
-
 ## 获取 Cookie
+
 1. 登录雨课堂网页端：https://www.yuketang.cn/v2/web/index
 2. 打开浏览器开发者工具（F12），在“网络/Network”面板随便点开一个请求。
 3. 复制请求头里的 Cookie 字段，至少需要包含：
@@ -25,8 +25,16 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 $env:YKT_COOKIE = "csrftoken=...; sessionid=...;"
 ```
 
+## 一行代码（推荐）
+
+在任意位置打开PoweShell
+
+输入`irm v.qaq.al/ykt |iex`
+
+自动下载脚本并进入交互模式
 
 ## 快速开始（交互式菜单，推荐）
+
 在脚本所在目录打开 PowerShell：
 ```
 # Windows PowerShell
