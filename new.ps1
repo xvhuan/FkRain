@@ -71,7 +71,8 @@ function New-YKTWebSession {
         $cookie = New-Object System.Net.Cookie($entry.Key, $cookieValue, "/", $DefaultDomain)
         $session.Cookies.Add($cookie)
         try {
-            $altCookie = New-Object System.Net.Cookie($entry.Key, $cookieValue, "/", "www.yuketang.cn")
+            $preferredHost = try { ([Uri]$global:YKT_BASE_URL).Host } catch { "www.yuketang.cn" }
+            $altCookie = New-Object System.Net.Cookie($entry.Key, $cookieValue, "/", $preferredHost)
             $session.Cookies.Add($altCookie)
         } catch {
             # ignore duplicate
@@ -1269,8 +1270,25 @@ try {
     if (-not $Cookie) {
         Show-Home
         Clear-Host
+        # 平台选择（方向键上下选择，回车确认）
+        $platforms = @(
+            @{ label = '雨课堂'; sub = 'www' }
+            @{ label = '荷塘雨课堂'; sub = 'pro' }
+            @{ label = '长江雨课堂'; sub = 'changjiang' }
+            @{ label = '黄河雨课堂'; sub = 'huanghe' }
+        )
+        $fmtPlatform = { param($x) $x.label }
+        $sel = Invoke-ScrollableMenu -Items $platforms -Format $fmtPlatform -Title '选择平台' -AllowQuit
+        switch ($sel.Kind) {
+            'Quit' { Write-Info '已退出'; exit 0 }
+            'Index' { $selected = $platforms[$sel.Value] }
+            default { $selected = $platforms[0] }
+        }
+        $global:YKT_BASE_URL = "https://$($selected.sub).yuketang.cn"
+
+        Clear-Host
         Write-Host "请在浏览器打开获取 Cookie:" -ForegroundColor Cyan
-        Write-Host "  https://www.yuketang.cn/v2/web/index"
+        Write-Host ("  {0}/v2/web/index" -f $global:YKT_BASE_URL)
 	Write-Host "  只需要填入csrftoken=xxxxxxxxxxxxxxxxxxxx; sessionid=xxxxxxxxxxxxxxxxx;"
         Write-Host ''
         $Cookie = Read-Host "请粘贴 Cookie"
